@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slow Social - App Map & Architecture Guide</title>
+    <style>
+        :root {
+            --bg-color: #f0f7f9;
+            --card-bg: #ffffff;
+            --text-main: #2c444e;
+            --text-muted: #5f7d8a;
+            --accent-color: #388697;
+            --accent-light: #d6eef3;
+            --border-color: #c4dfe6;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; margin: 0; padding: 2rem 1rem; }
+        .container { max-width: 850px; margin: 0 auto; }
+        .card { background: var(--card-bg); padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
+        h1, h2, h3 { color: var(--accent-color); margin-top: 0; }
+        .code-box { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.875rem; overflow-x: auto; margin: 0.75rem 0; }
+        .badge { background: var(--accent-light); color: var(--accent-color); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: bold; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+        .route-step { border-left: 3px solid var(--accent-color); padding-left: 1rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>🗺️ Slow Social — App Map & Architecture Guide</h1>
+        <p>This document serves as your take-home reference map for the <strong>Slow Social</strong> proof of concept.</p>
+    </div>
+
+    <div class="card">
+        <h2>1. System Architecture Overview</h2>
+        <p>A minimalist, non-instant social web application built with <strong>Vue 3 (Vite)</strong>, <strong>Tailwind CSS</strong>, and <strong>Firebase (Firestore + Anonymous Auth)</strong>.</p>
+
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <svg width="100%" height="160" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg" style="background:#fafafa; border-radius:8px; border:1px solid #c4dfe6;">
+                <rect x="20" y="50" width="120" height="60" rx="8" fill="#d6eef3" stroke="#388697" stroke-width="2"/>
+                <text x="80" y="85" text-anchor="middle" fill="#2c444e" font-size="12" font-weight="bold">PostComposer.vue</text>
+                
+                <path d="M 140 80 L 220 80" stroke="#388697" stroke-width="2"/>
+                
+                <rect x="220" y="50" width="160" height="60" rx="8" fill="#388697" stroke="#2c444e" stroke-width="2"/>
+                <text x="300" y="75" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Firestore ('posts')</text>
+                <text x="300" y="95" text-anchor="middle" fill="#d6eef3" font-size="10">createdAt + delayMinutes</text>
+
+                <path d="M 380 80 L 460 80" stroke="#388697" stroke-width="2"/>
+
+                <rect x="460" y="50" width="120" height="60" rx="8" fill="#d6eef3" stroke="#388697" stroke-width="2"/>
+                <text x="520" y="75" text-anchor="middle" fill="#2c444e" font-size="12" font-weight="bold">FeedColumn.vue</text>
+                <text x="520" y="95" text-anchor="middle" fill="#5f7d8a" font-size="10">Client Filter Logic</text>
+            </svg>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>2. Guided Code Route (Key Locations)</h2>
+        
+        <div class="route-step">
+            <h3>1. Entry Point & State Orchestration <span class="badge">src/App.vue</span></h3>
+            <p>Initializes Firebase Anonymous Auth and listens to the Firestore <code>posts</code> collection in real-time using <code>onSnapshot</code>. Manages the virtual time offset and language state.</p>
+        </div>
+
+        <div class="route-step">
+            <h3>2. Language & Dictionary Dictionary <span class="badge">src/messages.js</span></h3>
+            <p>Stores English and Japanese translation keys for all UI text, allowing instant 1-click language switching.</p>
+        </div>
+
+        <div class="route-step">
+            <h3>3. Text Submission <span class="badge">src/components/PostComposer.vue</span></h3>
+            <p>Captures user input and calculates a random delay between 2 to 5 minutes before calling Firestore's <code>addDoc</code>.</p>
+        </div>
+
+        <div class="route-step">
+            <h3>4. Time Filtering & Card Rendering <span class="badge">src/components/PostCard.vue</span></h3>
+            <p>Compares <code>createdAt + delayMinutes</code> against <code>virtualNow</code>. Handles the 1-reaction limit per browser via <code>localStorage</code>.</p>
+        </div>
+
+        <div class="route-step">
+            <h3>5. Reactions Summary Modal <span class="badge">src/components/ReactionModal.vue</span></h3>
+            <p>Renders a clean popup tallying the preset reactions (Like, I feel you, Same here, Great job) received for the author's published post.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>3. To Change This, Start Here</h2>
+        <ul>
+            <li><strong>Add or Modify Languages:</strong> Edit <code>src/messages.js</code>.</li>
+            <li><strong>Change Delay Time Range:</strong> Modify <code>randomDelayMinutes</code> calculation in <code>src/App.vue</code>.</li>
+            <li><strong>Add New Preset Reactions:</strong> Update <code>reactionKeys</code> in <code>src/messages.js</code> and the Firestore default map in <code>src/App.vue</code>.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>4. A Practice to Reuse</h2>
+        <blockquote style="margin:0; padding-left:1rem; border-left:4px solid #388697; color:#5f7d8a;">
+            <strong>Client-Side Simulation for Rapid PoCs:</strong><br>
+            Instead of building complex server-side scheduled triggers (Cloud Functions) for the non-instant delay, calculating state on the client side using timestamps saved hours of setup while perfectly validating the user experience.
+        </blockquote>
+    </div>
+
+    <div class="card">
+        <h2>5. How to Run Locally</h2>
+        <div class="code-box">
+cd slow-social
+npm install
+npm run dev
+# Open http://localhost:5173
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slow Social - Scope Review</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        :root {
+            --bg-color: #f7f9f8;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --accent-color: #5a7d7c;
+            --accent-light: #e6f0ee;
+            --border-color: #e2e8f0;
+            --status-draft-bg: #fef3c7;
+            --status-draft-text: #92400e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            color: var(--accent-color);
+        }
+
+        .badge {
+            background-color: var(--status-draft-bg);
+            color: var(--status-draft-text);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .kernel-box {
+            background-color: var(--accent-light);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        details {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: #fafafa;
+        }
+
+        details[open] {
+            background: var(--card-bg);
+        }
+
+        summary {
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        ul {
+            padding-left: 1.25rem;
+            margin-bottom: 0;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .tag-now { color: #2e7d32; font-weight: bold; }
+        .tag-later { color: #1565c0; font-weight: bold; }
+        .tag-cut { color: #c62828; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>🌿 Slow Social (Scope Plan)</h1>
+            <p style="margin:0.25rem 0 0 0; color:var(--text-muted);">Proof of Concept Plan for Devpost Hackathon</p>
+        </div>
+        <span class="badge">DRAFT</span>
+    </div>
+
+    <div class="card">
+        <h2>コアコンセプト & カーネル</h2>
+        <p>リアルタイムSNSの通知や返信の圧力から解放される、非即時型・低ストレスなスローソーシャルWebアプリ。</p>
+        
+        <div class="kernel-box">
+            <strong>💡 プロジェクトの核（Kernel）:</strong>
+            <ul>
+                <li><strong>ランダム非即時配信:</strong> 投稿はすぐには公開されず、ランダムな時間（PoCでは2〜5分）を経てタイムラインに反映される。</li>
+                <li><strong>選択肢限定レスポンス:</strong> 他者の投稿に対する反応はあらかじめ用意されたポジティブな選択肢（スタンプ/定型リアクション）のみ。自由テキスト記述・論争を排除。</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>コア・ループ (ユーザー体験の流れ)</h2>
+        <div class="mermaid">
+            graph TD
+                A[ユーザーがテキスト投稿] --> B[送信完了 / Firestore保存]
+                B -->|ランダム遅延: 2〜5分| C[公開タイムラインへ反映]
+                C --> D[他のユーザーが閲覧]
+                D --> E[定型選択肢からリアクション選択]
+                E --> F[投稿者が後から温かい反応を確認]
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>スコープ境界 (Now / Later / Cut)</h2>
+        
+        <details open>
+            <summary><span class="tag-now">NOW (2〜4時間で実装する範囲)</span></summary>
+            <ul>
+                <li>テキストのみの投稿機能</li>
+                <li>Firebase Firestore を利用したデータ永続化（他ユーザーへの共有）</li>
+                <li>投稿後のランダム遅延機能（2〜5分で公開フラグON）</li>
+                <li>ポジティブな定型リアクション選択機能（例: 「いいね」「共感」「お疲れ様」）</li>
+                <li>シンプルで落ち着いたWeb UI</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary><span class="tag-later">LATER (ハッカソン後の発展)</span></summary>
+            <ul>
+                <li>画像・動画のアップロード機能</li>
+                <li>遅延時間を数時間〜数日に設定できる機能</li>
+                <li>ユーザーアカウント・プロフィールの管理</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary><span class="tag-cut">CUT (今回スコープから外すもの)</span></summary>
+            <ul>
+                <li>自由記述のテキストコメント・スレッド返信</li>
+                <li>リアルタイムプッシュ通知</li>
+                <li>いいね数・フォロワー数などの競合的メトリクス</li>
+            </ul>
+        </details>
+    </div>
+
+    <div class="card">
+        <h2>Definition of Done (完成の定義)</h2>
+        <p>「ユーザーがテキストを入力して投稿し、2〜5分のランダム遅延後にタイムラインに届き、他のユーザーが定型選択肢で温かいリアクションを返せる」という一連の体験が、1〜2分のデモ動画で実証できること。</p>
+    </div>
+</div>
+
+</body>
+</html>
